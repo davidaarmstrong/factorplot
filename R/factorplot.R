@@ -215,6 +215,29 @@ factorplot.default <-function(obj, adjust.method="none", order="natural", var, r
 	return(ret)
 }
 
+factorplot.eff <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ordby = NULL,...){
+	vars <- strsplit(obj$term, split="*", fixed=T)[[1]]
+	b <- obj$fit
+	v <- vcov(obj)
+	if(ncol(obj$x) > 1){
+		n <- apply(e1$x[,vars], 1, paste, collapse=":")
+	}
+	else{
+		n <- as.character(x)
+	}
+	names(b) <- n
+	colnames(v) <- rownames(v) <- NULL
+	if(!is.null(ordby)){
+		if(!ordby %in% vars)stop("Variable specifed in ordby not part of effect term")
+		ord <- order(obj$x[,ordby])
+		b <- b[ord]
+		v <- v[ord, ord]
+	}
+	resdf <- nrow(obj$data)-ncol(obj$model.matrix)
+	ret <- factorplot:::factorplot.default(b, var=v, adjust.method=adjust.method, order=order, resdf=resdf, pval=pval, two.sided=two.sided, ...)
+	return(ret)
+}
+
 
 
 factorplot.multinom <- function(obj, adjust.method="none", order="natural", variable, pval = .05, two.sided=TRUE, ...){

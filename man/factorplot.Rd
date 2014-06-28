@@ -6,6 +6,7 @@
 \alias{factorplot.glht}
 \alias{factorplot.summary.glht}
 \alias{factorplot.multinom}
+\alias{factorplot.eff}
 \alias{factorplot.default}
 
 \title{Calculate Pairwise Differences}
@@ -21,6 +22,8 @@ This function calculates all pairwise difference from the input data.  The input
 \method{factorplot}{summary.glht}(obj, \dots)
 \method{factorplot}{multinom}(obj, adjust.method="none", order="natural", 
     variable, pval = .05, two.sided=TRUE, \dots)
+\method{factorplot}{eff}(obj, adjust.method="none", order="natural", 
+    var, resdf, pval=0.05, two.sided=TRUE, ordby = NULL, \dots)
 \method{factorplot}{default}(obj, adjust.method="none", order="natural", 
     var, resdf, pval=0.05, two.sided=TRUE, \dots)
 }
@@ -34,6 +37,7 @@ This function calculates all pairwise difference from the input data.  The input
   \item{two.sided}{Logical argument indicating whether the hypothesis test should be against a two-sided alternative if TRUE (default) or a one-sided alternative if FALSE}
   \item{order}{One of \sQuote{natural}, \sQuote{alph}, or \sQuote{size} indicating how the levels of the factor should be ordered for presentation.  The \sQuote{natural} option (the default) leaves the levels as they are in the factor contrasts.  \sQuote{alph} sorts the levels alphabetically and \sQuote{size} sorts the levels by size of coefficient.}
   \item{adjust.method}{For objects of class \code{multinom} and \code{numeric} - one of the methods allowed by \code{\link{p.adjust}} in \pkg{stats} - \sQuote{holm}, \sQuote{hochberg}, \sQuote{hommel}, \sQuote{bonferroni}, \sQuote{BH}, \sQuote{BY}, \sQuote{fdr}, \sQuote{none}.  See help for the \code{\link{p.adjust}} for more information on these different adjustment methods.  For objects of class \code{glm}, \code{lm} or \code{glht}, additional arguments of \sQuote{single-step}, \sQuote{Shaffer}, \sQuote{Westfall} and \sQuote{free} are possible.  See \code{\link{glht}} from the \pkg{multcomp} package for details. }	
+  \item{ordby}{For objects of class \code{eff} with interactions, \code{ordby} is a string indicating the variable by which the plot should be ordered.}
   \item{\dots}{Additional arguments to be passed to \code{\link{summary.glht}}, including, but not limited to \code{level} and \code{alternative}.}
 }
 \details{
