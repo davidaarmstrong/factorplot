@@ -11,7 +11,7 @@
 
 \title{Calculate Pairwise Differences}
 \description{
-This function calculates all pairwise difference from the input data.  The input data can be the result of a GLM (produced with \code{\link{glm}}), a multinomial logit model (produced with \code{multinom} from the \pkg{nnet} package), a general linear hypothesis test (produced with \code{\link{glht}} from the \pkg{multcomp} package) or any vector of values and a corresponding variance-covariance matrix. 
+This function calculates all pairwise difference from the input data.  The input data can be the result of a GLM (produced with \code{\link{glm}}), a multinomial logit model (produced with \code{multinom} from the \pkg{nnet} package), a general linear hypothesis test (produced with \code{\link{glht}} from the \pkg{multcomp} package), an object of class \code{eff} from the \code{effects} package or any vector of values and a corresponding variance-covariance matrix. 
 }
 \usage{
 \method{factorplot}{glm}(obj, adjust.method="none", order="natural", 
@@ -23,7 +23,7 @@ This function calculates all pairwise difference from the input data.  The input
 \method{factorplot}{multinom}(obj, adjust.method="none", order="natural", 
     variable, pval = .05, two.sided=TRUE, \dots)
 \method{factorplot}{eff}(obj, adjust.method="none", order="natural", 
-    var, resdf, pval=0.05, two.sided=TRUE, ordby = NULL, \dots)
+    pval=0.05, two.sided=TRUE, ordby = NULL, \dots)
 \method{factorplot}{default}(obj, adjust.method="none", order="natural", 
     var, resdf, pval=0.05, two.sided=TRUE, \dots)
 }

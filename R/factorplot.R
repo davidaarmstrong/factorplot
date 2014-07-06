@@ -215,7 +215,7 @@ factorplot.default <-function(obj, adjust.method="none", order="natural", var, r
 	return(ret)
 }
 
-factorplot.eff <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ordby = NULL,...){
+factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05, two.sided=TRUE, ordby = NULL,...){
 	vars <- strsplit(obj$term, split="*", fixed=T)[[1]]
 	b <- obj$fit
 	v <- vcov(obj)
