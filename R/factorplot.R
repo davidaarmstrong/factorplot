@@ -220,15 +220,15 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 	b <- obj$fit
 	v <- vcov(obj)
 	if(ncol(obj$x) > 1){
-		n <- apply(e1$x[,vars], 1, paste, collapse=":")
+		n <- apply(obj$x[,vars], 1, paste, collapse=":")
 	}
 	else{
-		n <- as.character(x)
+		n <- as.character(obj$x[,1])
 	}
 	names(b) <- n
 	colnames(v) <- rownames(v) <- NULL
 	if(!is.null(ordby)){
-		if(!ordby %in% vars)stop("Variable specifed in ordby not part of effect term")
+		if(!(ordby %in% vars))stop("Variable specifed in ordby not part of effect term")
 		ord <- order(obj$x[,ordby])
 		b <- b[ord]
 		v <- v[ord, ord]
