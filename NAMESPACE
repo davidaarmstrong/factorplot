@@ -1,3 +1,9 @@
+importFrom("graphics", "axis", "legend", "par", "plot", "polygon", "strwidth", "text")
+importFrom("stats", "coef", "contrasts", "model.matrix", "na.omit", "p.adjust", "pt", "terms", "vcov")
+importFrom("utils", "combn", "menu")
+import("multcomp")
+import("nnet")
+
 export(factorplot, squares)
 
 S3method(factorplot, lm)

@@ -1,12 +1,12 @@
 Package: factorplot
 Type: Package
-Title: factorplot
-Version: 1.1
-Date: 2013-08-27
+Title: Graphical Presentation of Simple Contrasts
+Version: 1.1-2
+Date: 2016-06-22
 Author: Dave Armstrong (Department of Political Science, UW-Milwaukee)
 Maintainer: Dave Armstrong <dave@quantoid.net>
-Depends: multcomp, nnet
-Description: Calculate, print, summarize and plot pairwise differences from GLMs, GLHT or Multinomial Logit models
+Imports: multcomp, nnet
+Description: Methods to calculate, print, summarize and plot pairwise differences from GLMs, GLHT or Multinomial Logit models.
 License: GPL (>=2)
 LazyLoad: yes
 
