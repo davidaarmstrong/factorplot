@@ -220,10 +220,10 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 	b <- obj$fit
 	v <- vcov(obj)
 	if(ncol(obj$x) > 1){
-		n <- apply(e1$x[,vars], 1, paste, collapse=":")
+		n <- apply(obj$x[,vars], 1, paste, collapse=":")
 	}
 	else{
-		n <- as.character(x)
+		n <- as.character(obj$x)
 	}
 	names(b) <- n
 	colnames(v) <- rownames(v) <- NULL
@@ -234,7 +234,7 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 		v <- v[ord, ord]
 	}
 	resdf <- nrow(obj$data)-ncol(obj$model.matrix)
-	ret <- factorplot:::factorplot.default(b, var=v, adjust.method=adjust.method, order=order, resdf=resdf, pval=pval, two.sided=two.sided, ...)
+	ret <- factorplot.default(b, var=v, adjust.method=adjust.method, order=order, resdf=resdf, pval=pval, two.sided=two.sided, ...)
 	return(ret)
 }
 

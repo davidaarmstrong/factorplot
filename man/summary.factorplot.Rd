@@ -11,7 +11,7 @@
   \item{object}{An object of class \code{\link{factorplot}}}
   \item{\dots}{Other arguments passed to summary, currently not implemented}
 }
-\author{Dave Armstrong (Department of Political Science, UW-Milwaukee)
+\author{Dave Armstrong
 }
 \seealso{\code{\link{factorplot}}}
 \examples{

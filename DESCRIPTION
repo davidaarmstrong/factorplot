@@ -1,12 +1,12 @@
 Package: factorplot
 Type: Package
-Title: factorplot
-Version: 1.1
-Date: 2013-08-27
-Author: Dave Armstrong (Department of Political Science, UW-Milwaukee)
+Title: Tools for Presenting Pairwise Comparisons
+Version: 1.2
+Date: 2018-05-16
+Author: Dave Armstrong
 Maintainer: Dave Armstrong <dave@quantoid.net>
 Depends: multcomp, nnet
-Description: Calculate, print, summarize and plot pairwise differences from GLMs, GLHT or Multinomial Logit models
+Description: The tools herein calculate, print, summarize and plot pairwise differences that result from generalized linear models, general linear hypothesis tests and multinomial logistic regression models.
 License: GPL (>=2)
 LazyLoad: yes
 

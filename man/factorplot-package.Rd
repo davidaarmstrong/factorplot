@@ -8,8 +8,8 @@
 \tabular{ll}{
 Package: \tab factorplot\cr
 Type: \tab Package\cr
-Version: \tab 1.1\cr
-Date: \tab 2013-08-27\cr
+Version: \tab 1.2\cr
+Date: \tab 2018-05-16\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -17,7 +17,7 @@ After a linear model or GLM has been estimated, the factorplot command creates a
 }
 \author{
 Dave Armstrong
-Maintainer: Dave Armstrong <davearmstrong.ps@gmail.com>
+Maintainer: Dave Armstrong <dave@quantoid.net>
 }
 \references{
 Armstrong, David A., II. 2013. factorplot: Improving Presentation of Simple Contrasts in Generalized Linear Models.  \emph{The R Journal}  \bold{5(2)}: 4--15.

@@ -1,7 +1,7 @@
 factorplot
 ==========
 
-factorplot is an R package that helps visualize pairwise comparisons.  It is particularly useful as a post-estimation technique following a (G)LM, multinomial logistic regression or any other multiple comparison procedure done with [multcomp](http://cran.r-project.org/web/packages/multcomp/index.html).  A more thorough discussion of the method and what it produces are [here](http://journal.r-project.org/archive/2013-2/armstrong.pdf):
+factorplot is an R package that helps visualize pairwise comparisons.  It is particularly useful as a post-estimation technique following a (G)LM, multinomial logistic regression or any other multiple comparison procedure done with [multcomp](https://CRAN.R-project.org/package=multcomp).  A more thorough discussion of the method and what it produces are [here](https://journal.r-project.org/archive/2013-2/armstrong.pdf):
 
 > David A. Armstrong II.  2013.  "factorplot: Improving Presentation of Simple Contrasts in Generalized Linear Models."  The R Journal. 5(2): 4--15. 
 

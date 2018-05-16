@@ -25,7 +25,7 @@
 }
 \value{
 \item{a graph}{}}
-\author{Dave Armstrong (Department of Political Science, UW-Milwaukee)
+\author{Dave Armstrong
 }
 \seealso{\code{\link{factorplot}}}
 \examples{

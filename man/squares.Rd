@@ -17,5 +17,5 @@ This is a function called by \code{\link{plot.factorplot}} and not intended to b
 \value{
 \item{square}{A square is printed on the graph, but nothing else is returned}
 }
-\author{Dave Armstrong (UW-Milwaukee, Department of Political Science)
+\author{Dave Armstrong
 }

@@ -15,7 +15,7 @@
   \item{sig}{Logical indicating whether only significant differences should be printed.}
   \item{...}{Other arguments passed to print, currently not implemented}
 }
-\author{Dave Armstrong (Department of Political Science, UW-Milwaukee)
+\author{Dave Armstrong
 }
 \seealso{\code{\link{factorplot}}
 }
