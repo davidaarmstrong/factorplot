@@ -8,8 +8,8 @@
 \tabular{ll}{
 Package: \tab factorplot\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2010-07-20\cr
+Version: \tab 1.1\cr
+Date: \tab 2013-08-27\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
