@@ -6,6 +6,7 @@ import("nnet")
 
 export(factorplot, squares)
 
+S3method(factorplot, sims)
 S3method(factorplot, lm)
 S3method(factorplot, glm)
 S3method(factorplot, glht)
