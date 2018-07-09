@@ -173,8 +173,8 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
 	sim.diffs <- obj %*% diffs
 	tmp.diff <- colMeans(sim.diffs)
-	tmp.sd <- apply(tmp.diff, 2, sd)
-	tmp.p <- apply(tmp.diff, 2, function(x)mean(x > 0))
+	tmp.sd <- apply(sim.diffs, 2, sd)
+	tmp.p <- apply(sim.diffs, 2, function(x)mean(x > 0))
 	tmp.p <- ifelse(tmp.p > .5, 1-tmp.p, tmp.p)
 	b.diff <- b.sd <- b.p <- matrix(NA, ncol=ncol(obj), nrow=ncol(obj))
 	b.diff[cmbn] <- tmp.diff
@@ -185,6 +185,7 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 	b.diff <- -b.diff
 	b.sd <- b.sd[-nrow(b.sd),-1]
 	b.p <- b.p[-nrow(b.p)]
+	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
 	class(ret) <- c("factorplot", "list")
 	ret
