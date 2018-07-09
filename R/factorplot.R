@@ -166,6 +166,29 @@ factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
 	ret
 }
 
+factorplot.sims(obj, adjust.method="none", order="natural", pval=.05, ...){
+	cmbn <- t(combn(ncol(obj), 2))
+	diffs <- matrix(0, nrow=ncol(obj), ncol=nrow(cmbn))
+	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
+	sim.diffs <- obj %*% diffs
+	tmp.diff <- colMeans(sim.diffs)
+	tmp.sd <- apply(tmp.diff, 2, sd)
+	tmp.p <- apply(tmp.diff, 2, function(x)mean(x > 0))
+	tmp.p <- ifelse(tmp.p > .5, 1-tmp.p, tmp.p)
+	b.diff <- b.sd <- b.p <- matrix(NA, ncol=ncol(obj), nrow=ncol(obj))
+	b.diff[cmbn] <- tmp.diff
+	b.sd[cmbn] <- tmp.sd
+	b.p[cmbn] <- tmp.p
+	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- names(b)
+	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- -b.diff
+	b.sd <- b.sd[-nrow(b.sd),-1]
+	b.p <- b.p[-nrow(b.p)]
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
+	class(ret) <- c("factorplot", "list")
+	ret
+}
 
 
 factorplot.default <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...){
@@ -237,7 +260,6 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 	ret <- factorplot(b, var=v, adjust.method=adjust.method, order=order, resdf=resdf, pval=pval, two.sided=two.sided, ...)
 	ret
 }
-
 
 
 factorplot.multinom <- function(obj, adjust.method="none", order="natural", variable, pval = .05, two.sided=TRUE, ...){
