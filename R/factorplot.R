@@ -184,7 +184,7 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 	b.diff <- b.diff[-nrow(b.diff),-1]
 	b.diff <- -b.diff
 	b.sd <- b.sd[-nrow(b.sd),-1]
-	b.p <- b.p[-nrow(b.p)]
+	b.p <- b.p[-nrow(b.p), -1]
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
 	class(ret) <- c("factorplot", "list")
