@@ -180,7 +180,7 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 	b.diff[cmbn] <- tmp.diff
 	b.sd[cmbn] <- tmp.sd
 	b.p[cmbn] <- tmp.p
-	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- names(b)
+	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- colnames(obj)
 	b.diff <- b.diff[-nrow(b.diff),-1]
 	b.diff <- -b.diff
 	b.sd <- b.sd[-nrow(b.sd),-1]
