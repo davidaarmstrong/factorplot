@@ -166,7 +166,7 @@ factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
 	ret
 }
 
-factorplot.sims(obj, adjust.method="none", order="natural", pval=.05, ...){
+factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05,...){
 	cmbn <- t(combn(ncol(obj), 2))
 	diffs <- matrix(0, nrow=ncol(obj), ncol=nrow(cmbn))
 	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
