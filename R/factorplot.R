@@ -314,7 +314,7 @@ factorplot.multinom <- function(obj, adjust.method="none", order="natural", vari
 squares <- function(ll, width=1,col){ 
     poly.x <- c(ll[1], ll[1]+width, ll[1]+width, ll[1], ll[1])
     poly.y <- c(ll[2], ll[2], ll[2]+width, ll[2]+width, ll[2])
-    polygon(poly.x, poly.y, col=col)
+    polygon(poly.x, poly.y, col=col, border="gray85", lwd=.25)
 }
 
 plot.factorplot <- function(x, ..., abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, 
