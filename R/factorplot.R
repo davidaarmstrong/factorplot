@@ -63,7 +63,7 @@ factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.var
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p=pval)
 	class(ret) <- c("factorplot", "list")
-	return(ret)
+	ret
 }
 
 factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=0.05, two.sided=TRUE, ...){
@@ -127,7 +127,7 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p=pval)
 	class(ret) <- c("factorplot", "list")
-	return(ret)
+	ret
 }
 
 factorplot.summary.glht <-function(obj, ...){
@@ -156,16 +156,40 @@ factorplot.summary.glht <-function(obj, ...){
 	colnames(b.p) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.p, p=pval)
 	class(ret) <- c("factorplot", "list")
-	return(ret)
+	ret
 }
 
 factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
 	s.glht.obj <- summary(obj, test=adjusted(adjust.method), ...)
 	ret <- factorplot(s.glht.obj)
 	class(ret) <- "factorplot"
-	return(ret)
+	ret
 }
 
+factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05,...){
+	cmbn <- t(combn(ncol(obj), 2))
+	diffs <- matrix(0, nrow=ncol(obj), ncol=nrow(cmbn))
+	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
+	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
+	sim.diffs <- obj %*% diffs
+	tmp.diff <- colMeans(sim.diffs)
+	tmp.sd <- apply(sim.diffs, 2, sd)
+	tmp.p <- apply(sim.diffs, 2, function(x)mean(x > 0))
+	tmp.p <- ifelse(tmp.p > .5, 1-tmp.p, tmp.p)
+	b.diff <- b.sd <- b.p <- matrix(NA, ncol=ncol(obj), nrow=ncol(obj))
+	b.diff[cmbn] <- tmp.diff
+	b.sd[cmbn] <- tmp.sd
+	b.p[cmbn] <- tmp.p
+	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- colnames(obj)
+	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- -b.diff
+	b.sd <- b.sd[-nrow(b.sd),-1]
+	b.p <- b.p[-nrow(b.p), -1]
+	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
+	class(ret) <- c("factorplot", "list")
+	ret
+}
 
 
 factorplot.default <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...){
@@ -212,7 +236,7 @@ factorplot.default <-function(obj, adjust.method="none", order="natural", var, r
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
 	class(ret) <- c("factorplot", "list")
-	return(ret)
+	ret
 }
 
 factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05, two.sided=TRUE, ordby = NULL,...){
@@ -228,7 +252,7 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 	names(b) <- n
 	colnames(v) <- rownames(v) <- NULL
 	if(!is.null(ordby)){
-		if(!ordby %in% vars)stop("Variable specifed in ordby not part of effect term")
+		if(!(ordby %in% vars))stop("Variable specifed in ordby not part of effect term")
 		ord <- order(obj$x[,ordby])
 		b <- b[ord]
 		v <- v[ord, ord]
@@ -237,7 +261,6 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 	ret <- factorplot.default(b, var=v, adjust.method=adjust.method, order=order, resdf=resdf, pval=pval, two.sided=two.sided, ...)
 	return(ret)
 }
-
 
 
 factorplot.multinom <- function(obj, adjust.method="none", order="natural", variable, pval = .05, two.sided=TRUE, ...){
@@ -283,7 +306,7 @@ factorplot.multinom <- function(obj, adjust.method="none", order="natural", vari
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp,  p = pval)
 	class(ret) <- c("factorplot", "list")
-	return(ret)
+	ret
 }
 
 

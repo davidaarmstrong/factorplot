@@ -7,6 +7,7 @@ import(multcomp)
 import(nnet)
 export(factorplot, factorplot.default, squares)
 
+S3method(factorplot, sims)
 S3method(factorplot, lm)
 S3method(factorplot, glm)
 S3method(factorplot, glht)
