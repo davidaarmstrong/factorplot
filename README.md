@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="200" height="200" src="https://quantoid.net/files/images/fpsticker.png">
+</p>
+
 factorplot
 ==========
 
