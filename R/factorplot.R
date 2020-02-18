@@ -1,7 +1,126 @@
+#' Calculate Pairwise Differences
+#' 
+#' This function calculates all pairwise difference from the input data.  The
+#' input data can be the result of a GLM (produced with \code{\link{glm}}), a
+#' multinomial logit model (produced with \code{multinom} from the \pkg{nnet}
+#' package), a general linear hypothesis test (produced with \code{\link{glht}}
+#' from the \pkg{multcomp} package), an object of class \code{eff} from the
+#' \code{effects} package or any vector of values and a corresponding
+#' variance-covariance matrix.
+#' 
+#' This function calculates pairwise differences that can be passed to a novel
+#' plotting method that does not suffer from some of the same problems as
+#' floating/quasi confidence intervals and is easier to apprehend immediately
+#' than a compact letter display.
+#' 
+#' While the factorplot function and its print and summary methods work equally
+#' well regardless of the number of levels in the \code{factor.variable}, the
+#' plot function automatically scales the resulting graph to the appropriate
+#' size, but will be less useful as the number of contrasts gets large (e.g., >
+#' 30).  If more than one factor covariate is present and the
+#' \code{factor.variable} option is NULL, the function generates a text-based
+#' menu in the R GUI that will allow the users to pick the term for which they
+#' want to calculate the results.
+#' 
+#' @aliases factorplot factorplot.lm factorplot.glm factorplot.glht
+#' factorplot.summary.glht factorplot.multinom factorplot.eff
+#' factorplot.default factorplot.sims
+#' @param obj An object of class \code{glm} or \code{lm}, \code{glht},
+#' \code{summary.glht}, \code{multinom} or a vector of values (of class
+#' \code{numeric}) for which pairwise differences will be calculated.
+#' Alternatively, an object of class \code{sims} which gives an Nsim x
+#' Nstimulus matrix of predictions from which differences will be calculated.
+#' @param factor.variable String containing the name of the factor for which
+#' pairwise coefficient differences will be calculated (if a \code{glm} or
+#' \code{lm} class object is passed to the function)
+#' @param variable String containing the name of the column of the model matrix
+#' for which pairwise differences will be calculated if a \code{multinom} class
+#' object is passed to the function
+#' @param var Variance-covariance matrix to be used if \code{obj} is a numeric
+#' vector.  This could also be a vector of quasi/floating variances from which
+#' a diagonal variance-covariance matrix will be produced
+#' @param resdf Residual degrees of freedom used as the degrees of freedom for
+#' the t-distribution from which p-values will be generated if \code{obj} is a
+#' numeric vector
+#' @param pval The (uncorrected) Type I error probability required, default =
+#' 0.05
+#' @param two.sided Logical argument indicating whether the hypothesis test
+#' should be against a two-sided alternative if TRUE (default) or a one-sided
+#' alternative if FALSE
+#' @param order One of \sQuote{natural}, \sQuote{alph}, or \sQuote{size}
+#' indicating how the levels of the factor should be ordered for presentation.
+#' The \sQuote{natural} option (the default) leaves the levels as they are in
+#' the factor contrasts.  \sQuote{alph} sorts the levels alphabetically and
+#' \sQuote{size} sorts the levels by size of coefficient.
+#' @param adjust.method For objects of class \code{multinom} and \code{numeric}
+#' - one of the methods allowed by \code{\link{p.adjust}} in \pkg{stats} -
+#' \sQuote{holm}, \sQuote{hochberg}, \sQuote{hommel}, \sQuote{bonferroni},
+#' \sQuote{BH}, \sQuote{BY}, \sQuote{fdr}, \sQuote{none}.  See help for the
+#' \code{\link{p.adjust}} for more information on these different adjustment
+#' methods.  For objects of class \code{glm}, \code{lm} or \code{glht},
+#' additional arguments of \sQuote{single-step}, \sQuote{Shaffer},
+#' \sQuote{Westfall} and \sQuote{free} are possible.  See \code{\link{glht}}
+#' from the \pkg{multcomp} package for details.
+#' @param ordby For objects of class \code{eff} with interactions, \code{ordby}
+#' is a string indicating the variable by which the plot should be ordered.
+#' @param \dots Additional arguments to be passed to
+#' \code{\link{summary.glht}}, including, but not limited to \code{level} and
+#' \code{alternative}.
+#' @return \item{b.diff}{An upper-triangular matrix of pairwise differences
+#' between row and column levels of the factor} \item{b.sd}{An upper-triangular
+#' matrix of standard errors of the pairwise differences represented in b.diff}
+#' \item{pval}{An upper-triangular matrix of uncorrected (one-sided) p-values
+#' corresponding to the entries of b.diff} \item{p}{The p-value specified in
+#' the command}
+#' @author Dave Armstrong
+#' @references Easton, D.F., J. Peto and G.A.G. Babiker. 1991. Floating
+#' absolute risk: An alternative to relative risk in survival and case control
+#' analysis avoiding an arbitrary reference group.  \emph{Statistics in
+#' Medicine} \bold{10}: 1025--1035.\cr Firth, David and Renee X. de Menzes.
+#' 2004.  Quasi-variances.  \emph{Biometrika} \bold{91.1}: 65--80.\cr Plummer,
+#' M. 2004. Improved estimates of floating absolute risk.  \emph{Statistics in
+#' Medicine} \bold{23}: 93--104.\cr
+#' @examples
+#' 
+#' ## for lm/glm
+#' x <- as.factor(round(runif(1000, .5,5.5)))
+#' levels(x) <- paste("lab", 1:20, sep="")
+#' X <- model.matrix(~x)
+#' Y <- X %*% rnorm(ncol(X),0,4) + rnorm(1000)
+#' mod <- lm(Y ~ x)
+#' fp <- factorplot(mod, factor.variable="x",  pval = 0.05, order="alph")
+#' 
+#' ## for glht
+#' library(multcomp)
+#' mod.glht <- glht(mod, linfct = mcp('x' = 'Tukey'))
+#' fp2 <- factorplot(mod.glht, adjust.method='single-step')
+#' 
+#' ## for vector of values
+#' b <- c(0, mod$coef[-1])
+#' v <- rbind(0, cbind(0, vcov(mod)[-1,-1]))
+#' names(b) <- colnames(v) <- rownames(v) <- mod$xlevels[["x"]]
+#' fp3 <- factorplot(b, var=v, resdf=mod$df.residual)
+#' 
+#' ## for multinomial logit
+#' data(france)
+#' library(nnet)
+#' multi.mod <- multinom(vote ~ retnat + lrself + male + age, data=france)
+#' fp4 <- factorplot(multi.mod, variable="lrself")
+#' 
+#' @export factorplot
+#' @importFrom graphics axis legend par plot polygon strwidth text
+#' @importFrom stats coef contrasts model.matrix na.omit 
+#' p.adjust pt terms vcov sd
+#' @importFrom utils combn menu
+#' @import multcomp
 factorplot <- function(obj, adjust.method="none",  ...){
 	UseMethod("factorplot")
 }
 
+
+#' @method factorplot glm
+#' @rdname factorplot
+#' @export
 factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=0.05, two.sided=TRUE, ...){
 	tmp.classes <- attr(terms(obj), "dataClasses")
 	tmp.classes <- tmp.classes[tmp.classes == "factor"]
@@ -66,6 +185,9 @@ factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.var
 	ret
 }
 
+#' @method factorplot lm
+#' @rdname factorplot
+#' @export
 factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.variable=NULL, pval=0.05, two.sided=TRUE, ...){
 	tmp.classes <- attr(terms(obj), "dataClasses")
 	tmp.classes <- tmp.classes[tmp.classes == "factor"]
@@ -130,6 +252,9 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 	ret
 }
 
+#' @method factorplot summary.glht
+#' @rdname factorplot
+#' @export
 factorplot.summary.glht <-function(obj, ...){
 	otherargs <- list(...)
 	if("pval" %in% names(otherargs)){pval <- otherargs$pval}
@@ -159,6 +284,10 @@ factorplot.summary.glht <-function(obj, ...){
 	ret
 }
 
+#' @method factorplot glht
+#' @rdname factorplot
+#' @export
+
 factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
 	s.glht.obj <- summary(obj, test=adjusted(adjust.method), ...)
 	ret <- factorplot(s.glht.obj)
@@ -166,6 +295,9 @@ factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
 	ret
 }
 
+#' @method factorplot sims
+#' @rdname factorplot
+#' @export
 factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05,...){
 	cmbn <- t(combn(ncol(obj), 2))
 	diffs <- matrix(0, nrow=ncol(obj), ncol=nrow(cmbn))
@@ -191,7 +323,9 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 	ret
 }
 
-
+#' @method factorplot default
+#' @rdname factorplot
+#' @export
 factorplot.default <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...){
 	b <- obj
 	if(!is.matrix(var)){
@@ -239,6 +373,9 @@ factorplot.default <-function(obj, adjust.method="none", order="natural", var, r
 	ret
 }
 
+#' @method factorplot eff
+#' @rdname factorplot
+#' @export
 factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05, two.sided=TRUE, ordby = NULL,...){
 	vars <- strsplit(obj$term, split="*", fixed=T)[[1]]
 	b <- obj$fit
@@ -263,6 +400,9 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 }
 
 
+#' @method factorplot multinom
+#' @rdname factorplot
+#' @export
 factorplot.multinom <- function(obj, adjust.method="none", order="natural", variable, pval = .05, two.sided=TRUE, ...){
 	v <- vcov(obj)
 	b <- c(t(coef(obj)))
@@ -311,12 +451,99 @@ factorplot.multinom <- function(obj, adjust.method="none", order="natural", vari
 
 
 
+
+
+#' Auxiliary Function to Plot a Square
+#' 
+#' An auxiliary function to plot squares, used by the
+#' \code{\link{plot.factorplot}} function
+#' 
+#' This is a function called by \code{\link{plot.factorplot}} and not intended
+#' to be directly used by the user; however, it is possible that this could be
+#' of more general use as a utility.  The function is simply a wrapper to
+#' \code{polygon} that obviates the need to specify all (\code{x},\code{y})
+#' coordinates for the polygon.
+#' 
+#' @param ll The (\code{x},\code{y}) coordinate of the lower-left corder of the
+#' square
+#' @param width a scalar indicating how wide the squares should be
+#' @param col a color with which the square will be filled in
+#' @return \item{square}{A square is printed on the graph, but nothing else is
+#' returned}
+#' @author Dave Armstrong
+#' @export squares
 squares <- function(ll, width=1,col){ 
     poly.x <- c(ll[1], ll[1]+width, ll[1]+width, ll[1], ll[1])
     poly.y <- c(ll[2], ll[2], ll[2]+width, ll[2]+width, ll[2])
     polygon(poly.x, poly.y, col=col, border="gray85", lwd=.25)
 }
 
+
+
+#' Plot method for objects of class factorplot
+#' 
+#' Creates a plot akin to an upper-triangular levelplot (though using
+#' \code{plot} rather than \code{levelplot}) where the coloring of the squares
+#' represents significance and text inside the squares represents the pairwise
+#' difference and its correspopnding standard error.
+#' 
+#' 
+#' @param x An object of class factorplot, produced by
+#' \code{\link{factorplot}}.
+#' @param abbrev.char The number of characters that should be used to
+#' abbreviate the levels of the factor.  Set to a large value for unabbreviated
+#' names.
+#' @param polycol A vector of three colors indicating the colors of polygons
+#' when the difference is significant negative, insignificant, and significant
+#' positive, in that order.  Defaults to c(\sQuote{gray80}, \sQuote{white},
+#' \sQuote{gray40}).
+#' @param textcol A vector of three colors indicating the text color for
+#' polygons that are significant negative, insignificant, and significant
+#' positive, in that order.  Defaults to c(\sQuote{black}, \sQuote{black},
+#' \sQuote{white})
+#' @param trans A character string representing the post-hypothesis-testing
+#' transformation to be performed on the estimates.  For example, if the
+#' estimates provided to the \code{factorplot} command are log-floating
+#' absolute risks, you could use the transformation \sQuote{exp}.  The
+#' transformation is performed through a call to \code{do.call}
+#' @param print.sig.leg logical indicating whether the legend identifying the
+#' meaning of the different colors should be included.
+#' @param print.square.leg logical indicating whether the legend identifying
+#' the meaning of the numbers in each square should be included.
+#' @param scale.text optional scale factor to be applied to text, numbers
+#' bigger than 1 make text bigger than default and numbers smaller than 1 do
+#' the opposite
+#' @param space.text optional text spacing factor, numbers bigger than 1 push
+#' text toward the extent of the boxes and numbers smaller than one bring text
+#' in toward the center
+#' @param print.est logical argument indicating whether the estimates should be
+#' printed in the boxes
+#' @param print.se logical argument indicating whether the standard errors
+#' should be printed in the boxes
+#' @param ... Other arguments to be passed to plot, currently not implemented
+#' @return \item{a graph}{}
+#' @author Dave Armstrong
+#' @seealso \code{\link{factorplot}}
+#' @examples
+#' 
+#' est1 <- log(c(1.00,2.12,1.44,1.31,1.44,
+#'      1.46,0.90))
+#' var1 <- c(0.242,0.096,0.156,0.140,
+#'      0.380,0.484,0.375)^2
+#' names(est1) <- c(
+#'      "Normal & superficial gastritis", 
+#'      "Chronic gastritis", 
+#'      "Chronic atrophic gastritits", 
+#'      "Intestinal metaplasia I", 
+#'      "Intestinal metaplasia II", 
+#'      "Intestinal metaplasia III", 
+#'      "Dysplasia")
+#' 
+#' plummer_fp1 <- factorplot(est1, var=var1, resdf=Inf)
+#' plot(plummer_fp1, trans="exp", abbrev.char = 100)
+#' 
+#' @method plot factorplot
+#' @export
 plot.factorplot <- function(x, ..., abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, 
 	print.sig.leg=TRUE, print.square.leg=TRUE, scale.text=1, space.text=1, print.est=TRUE, 
 	print.se=TRUE){
@@ -385,6 +612,46 @@ legend(1+leg$rect$w*as.numeric(print.sig.leg), 1, c(expression(bold("bold = ")~b
 
 
 
+
+
+#' Print method for objects of class factorplot
+#' 
+#' Prints the output from an object of class \code{\link{factorplot}}.  By
+#' default, the function prints all pairwise differences along with standard
+#' errors and p-values (optionally adjusted for multiple testing). Optionally,
+#' it can print only significant differences.
+#' 
+#' 
+#' @param x An object of class \code{\link{factorplot}}.
+#' @param digits The number of digits to print in each column
+#' @param trans A character string representing the post-hypothesis-testing
+#' transformation to be performed on the estimates.  For example, if the
+#' estimates provided to the \code{factorplot} command are log-floating
+#' absolute risks, you could use the transformation \sQuote{exp}.  The
+#' transformation is performed through a call to \code{do.call}
+#' @param sig Logical indicating whether only significant differences should be
+#' printed.
+#' @param ... Other arguments passed to print, currently not implemented
+#' @author Dave Armstrong
+#' @seealso \code{\link{factorplot}}
+#' @examples
+#' 
+#' est1 <- log(c(1.00,2.12,1.44,1.31,1.44,
+#'      1.46,0.90))
+#' var1 <- c(0.242,0.096,0.156,0.140,
+#'      0.380,0.484,0.375)^2
+#' names(est1) <- c(
+#'      "Normal & superficial gastritis", 
+#'      "Chronic gastritis", 
+#'      "Chronic atrophic gastritits", 
+#'      "Intestinal metaplasia I", 
+#'      "Intestinal metaplasia II", 
+#'      "Intestinal metaplasia III", 
+#'      "Dysplasia")
+#' plummer_fp1 <- factorplot(est1, var=var1, resdf=Inf)
+#' print(plummer_fp1, trans="exp")
+#' @method print factorplot
+#' @export
 print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
 	eg <- expand.grid(rownames(x$b.diff), colnames(x$b.diff))
 	mc <- apply(eg, 2, function(x)max(nchar(x)))
@@ -415,6 +682,32 @@ print.factorplot <- function(x, ..., digits=3, sig=FALSE, trans=NULL){
 	tmp
 }
 
+
+
+#' Summary method for objects of class factorplot
+#' 
+#' Summarizes the number of significant positive and negative differences for
+#' objects of class \code{\link{factorplot}}
+#' 
+#' 
+#' @param object An object of class \code{\link{factorplot}}
+#' @param \dots Other arguments passed to summary, currently not implemented
+#' @author Dave Armstrong
+#' @seealso \code{\link{factorplot}}
+#' @examples
+#' 
+#' x <- as.factor(round(runif(1000, .5,5.5)))
+#' levels(x) <- paste("lab", 1:20, sep="")
+#' X <- model.matrix(~x)
+#' b <- rnorm(ncol(X),0,4)
+#' Y.hat <- X %*% b 
+#' Y <- Y.hat  + rnorm(1000)
+#' mod <- lm(Y ~ x)
+#' fp <- factorplot(mod, factor.variable="x", pval=0.05, order="alph")
+#' summary(fp)
+#' 
+#' @method summary factorplot
+#' @export
 summary.factorplot <- function(object, ...){
 	tmp <- object$b.diff
 	tmp <- cbind(NA, tmp)
