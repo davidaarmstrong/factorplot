@@ -1,0 +1,129 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/"
+)
+```
+
+# factorplot <img src="https://quantoid.net/files/images/fpsticker.png" align="right" alt="" width="200" />
+
+`factorplot` is an R package that helps visualize pairwise comparisons.  It is particularly useful as a post-estimation technique following a (G)LM, multinomial logistic regression or any other multiple comparison procedure done with [multcomp](https://CRAN.R-project.org/package=multcomp).  A more thorough discussion of the method and what it produces are [here](https://journal.r-project.org/archive/2013-2/armstrong.pdf).  
+
+The basic idea is that often when variables with multiple categories are used in regression models, we want to know not only the difference between each category and the reference group, but we want to know the differences in all possible pairs of values of that variable.  There are lots of methods out there for doing just that, but I developed the `factorplot` package to be simple to decode relative to its competitors.  Here are a few examples of where the `factorplot` package could be useful.  
+
+### (G)LM Coefficients. 
+
+To show how the `factorplot` function works for (G)LM coefficients, we are going to use the `Ornstein` data from the `carData` package.  Here the outcome is interlocking firm memberships and the independent variables are the log of assets, the nation in which the firm resides and the sector in which the firm operates.  
+
+
+```{r}
+data(Ornstein, package="carData")
+mod <- glm(interlocks ~ log(assets) + sector + nation, 
+           data=Ornstein, family=poisson)
+summary(mod)
+```
+
+The `factorplot` function initially produces no output, but calculates all of the pairwise comparisons. 
+
+```{r}
+f <- factorplot(mod, factor.var="sector")
+```
+
+There are print, summary and plotting methods for the `factorplot` object. The print method has an optional argument `sig`, which if set to `TRUE` only prints significant differences. 
+
+```{r}
+print(f, digits=3, sig=TRUE)
+```
+
+The summary method identifies the number of significant positive, significant negative and insignificant differences with other stimuli. 
+
+```{r}
+summary(f)
+```
+
+The plotting method colors each box according to whether and how each difference is significant.  For example, the dark-gray box at the nexus of the `AGR` and `CON` row and column, respectively, indicates that the agriculture sector has significantly more interlocking board memberships than does the construction sector.  The light-gray boxes indicate that the difference is significant in favor of the column rather than the row.    
+
+
+```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+plot(f)
+```
+
+The default means for adjusting for multiplicity is to do nothing, but all of the options of `p.adjust` are available.  
+
+```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+f <- factorplot(mod, factor.var="sector", adjust.method="holm")
+plot(f)
+```
+
+### GLHT objects. 
+
+For those using the `glht()` function from `multcomp`, the `factorplot` function works for these objects, too. 
+
+```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+g <- glht(mod, linfct = mcp("sector" = "Tukey"))
+s <- summary(g)
+plot(factorplot(s))
+```
+
+
+### Multinomial Logit Coefficients
+
+One of the biggest problems with interpreting multinomial logit coefficients is that the reference category problem applies to all variables because it is a function not only of potentially some independent variables, but also of the dependent variable. Here the `factorplot` function can help. 
+
+```{r}
+data("Chile", package="carData")
+library(nnet)
+mod <- multinom(vote ~ age + sex + education, data=Chile)
+summary(mod)
+```
+
+
+In the above, the effect of age is the effect of `sexM` is the effect on the binary choice between the reference (Abstain) and each non-reference level.  We can see the effects for all pairs of levels with `factorplot`. 
+
+```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+f <- factorplot(mod, variable="sexM")
+plot(f)
+```
+
+Notice that the factorplot shows that all of the differences between non-reference categories are statistically significant.  One slight limitation to the way that `factorplot` is currently written is that it will only work on one _regressor_ in the multinomial logit.  So, it won't do `education` as a whole, but only one level.  For example: 
+
+
+```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+f <- factorplot(mod, variable="educationPS")
+plot(f)
+```
+
+If you wanted to do all of the levels of education, you could build the vector of coefficients and get the variance-covariance matrix as follows: 
+
+
+```{r}
+
+e <- effect("education", mod)
+b <- coef(mod)
+v <- vcov(mod)
+bEd <- b[,4:5]
+nb <- outer(rownames(bEd), gsub("education", "ed", colnames(bEd)), paste, sep=":")
+bEd <- c(bEd)
+names(bEd) <- c(nb)
+bEd <- c(0,0,0,0,0,0,bEd)
+names(bEd)[1:6] <- c("A:edP", "A:edPS", "A:edS", "N:edP", "U:edP", "Y:edP")
+
+v.inds <- grep("education", rownames(v))
+vEd <- v[v.inds, v.inds]
+vEd <- rbind(matrix(0, nrow=6, ncol=ncol(vEd)), vEd)
+vEd <- cbind(matrix(0, ncol=6, nrow=nrow(vEd)), vEd)
+rownames(vEd) <- colnames(vEd)  <- names(bEd)
+
+f <- factorplot:::factorplot.default(bEd, var=vEd, resdf = nrow(model.frame(mod)) - mod$rank)
+```
+
+
+
+
