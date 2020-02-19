@@ -105,8 +105,21 @@ If you wanted to do all of the levels of education, you could build the vector o
 
 ```{r}
 
-e <- effect("education", mod)
+e <- effects::effect("education", mod)
+X <- e$model.matrix
 b <- coef(mod)
+b <- rbind(0, b)
+
+xb <- sapply(1:nrow(b), function(i)X %*% b[i,])
+exb <- exp(xb)
+probs <- prop.table(exb, 1)
+
+
+
+outer(X, coef(mod))
+b <- c(rep(0, ncol(coef(mod))), coef(mod))
+
+
 v <- vcov(mod)
 bEd <- b[,4:5]
 nb <- outer(rownames(bEd), gsub("education", "ed", colnames(bEd)), paste, sep=":")
