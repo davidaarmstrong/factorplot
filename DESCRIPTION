@@ -5,7 +5,7 @@ Version: 1.2.1
 Author: Dave Armstrong
 Maintainer: Dave Armstrong <dave@quantoid.net>
 Depends: multcomp
-Suggests: nnet
+Suggests: nnet, carData
 Description: The tools herein calculate, print, summarize and plot pairwise differences that result from generalized linear models, general linear hypothesis tests and multinomial logistic regression models. For more informatin, see Armstrong (2013) <doi: 10.32614/RJ-2013-021>.
 License: GPL (>=2)
 LazyLoad: yes

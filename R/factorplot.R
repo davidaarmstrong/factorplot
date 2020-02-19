@@ -265,7 +265,7 @@ factorplot.summary.glht <-function(obj, ...){
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- levs
 	proc.names <- do.call(rbind, strsplit(names(obj$test$coef), split=" - "))
 	rc <- apply(proc.names, c(1,2), function(x)which(colnames(b.diff) == x))[,c(2,1)]
-	b.diff[rc] <- obj$test$coef
+	b.diff[rc] <- -obj$test$coef
 	b.sd[rc] <- obj$test$sigma
 	b.p[rc] <- obj$test$pvalues
 	b.diff <- b.diff[-nrow(b.diff),-1]
