@@ -4,7 +4,8 @@
 \alias{print.factorplot}
 \title{Print method for objects of class factorplot}
 \usage{
-\method{print}{factorplot}(x, ..., digits = 3, sig = FALSE, trans = NULL)
+\method{print}{factorplot}(x, ..., digits = 3, sig = FALSE,
+  trans = NULL)
 }
 \arguments{
 \item{x}{An object of class \code{\link{factorplot}}.}

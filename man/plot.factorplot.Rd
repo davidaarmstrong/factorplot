@@ -4,20 +4,10 @@
 \alias{plot.factorplot}
 \title{Plot method for objects of class factorplot}
 \usage{
-\method{plot}{factorplot}(
-  x,
-  ...,
-  abbrev.char = 10,
-  polycol = NULL,
-  textcol = NULL,
-  trans = NULL,
-  print.sig.leg = TRUE,
-  print.square.leg = TRUE,
-  scale.text = 1,
-  space.text = 1,
-  print.est = TRUE,
-  print.se = TRUE
-)
+\method{plot}{factorplot}(x, ..., abbrev.char = 10, polycol = NULL,
+  textcol = NULL, trans = NULL, print.sig.leg = TRUE,
+  print.square.leg = TRUE, scale.text = 1, space.text = 1,
+  print.est = TRUE, print.se = TRUE)
 }
 \arguments{
 \item{x}{An object of class factorplot, produced by

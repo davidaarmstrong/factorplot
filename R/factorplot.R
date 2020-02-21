@@ -326,7 +326,7 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 #' @method factorplot default
 #' @rdname factorplot
 #' @export
-factorplot.default <-function(obj, adjust.method="none", order="natural", var, resdf, pval=0.05, two.sided=TRUE, ...){
+factorplot.default <-function(obj, adjust.method="none", order="natural", var, resdf=Inf, pval=0.05, two.sided=TRUE, ...){
 	b <- obj
 	if(!is.matrix(var)){
 		v <- diag(var)
@@ -404,17 +404,26 @@ factorplot.eff <-function(obj, adjust.method="none", order="natural", pval=0.05,
 #' @rdname factorplot
 #' @export
 factorplot.multinom <- function(obj, adjust.method="none", order="natural", variable, pval = .05, two.sided=TRUE, ...){
-	v <- vcov(obj)
+  order <- match.arg(order)
+  v <- vcov(obj)
 	b <- c(t(coef(obj)))
-	names(b) <- rownames(v)
-	inds <- which(gsub("^[^\\:]+\\:\\s*", "", names(b))	 == variable)
-	v <- v[inds,inds]
-	b <- b[inds]
-	b <- c(0,b)
-	v <- rbind(0, cbind(0, v))
-	levs <- names(b) <- obj$lev
-	resdf <- nrow(obj$residuals) - length(c(coef(obj)))
-	if(!(order %in% c("alph", "natural", "size")))stop("Order must be one of 'size', 'natural', 'alph'")
+	names(b) <- nb <- rownames(v)
+  if(variable %in% obj$coefnames){
+  	inds <- which(gsub("^[^\\:]+\\:\\s*", "", names(b))	 == variable)
+  	v <- v[inds,inds]
+  	b <- b[inds]
+  	b <- c(0,b)
+  	v <- rbind(0, cbind(0, v))
+  	levs <- names(b) <- obj$lev
+  } else if(variable %in% attr(terms(obj), "term.labels")){
+      inds <- grep(paste0("^[^\\:]+\\:", variable), names(b))
+      v <- v[inds,inds]
+      b <- b[inds]
+      b <- c(0,b)
+      v <- rbind(0, cbind(0, v))
+      levs <- names(b) <- c("Reference", nb[inds])
+  }
+		resdf <- nrow(obj$residuals) - length(c(coef(obj)))
 	tmp.ord <- switch(order, 
 		alph = order(names(b)), 
 		size = order(b), 

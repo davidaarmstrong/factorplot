@@ -6,6 +6,8 @@ output: github_document
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
+  message=FALSE, 
+  warning=FALSE,
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/"
@@ -24,6 +26,7 @@ To show how the `factorplot` function works for (G)LM coefficients, we are going
 
 
 ```{r}
+library(factorplot)
 data(Ornstein, package="carData")
 mod <- glm(interlocks ~ log(assets) + sector + nation, 
            data=Ornstein, family=poisson)
@@ -51,13 +54,13 @@ summary(f)
 The plotting method colors each box according to whether and how each difference is significant.  For example, the dark-gray box at the nexus of the `AGR` and `CON` row and column, respectively, indicates that the agriculture sector has significantly more interlocking board memberships than does the construction sector.  The light-gray boxes indicate that the difference is significant in favor of the column rather than the row.    
 
 
-```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+```{r fig.height=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
 plot(f)
 ```
 
 The default means for adjusting for multiplicity is to do nothing, but all of the options of `p.adjust` are available.  
 
-```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+```{r fig.height=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
 f <- factorplot(mod, factor.var="sector", adjust.method="holm")
 plot(f)
 ```
@@ -66,7 +69,7 @@ plot(f)
 
 For those using the `glht()` function from `multcomp`, the `factorplot` function works for these objects, too. 
 
-```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+```{r fig.height=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
 g <- glht(mod, linfct = mcp("sector" = "Tukey"))
 s <- summary(g)
 plot(factorplot(s))
@@ -87,56 +90,20 @@ summary(mod)
 
 In the above, the effect of age is the effect of `sexM` is the effect on the binary choice between the reference (Abstain) and each non-reference level.  We can see the effects for all pairs of levels with `factorplot`. 
 
-```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+```{r  fig.height=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
 f <- factorplot(mod, variable="sexM")
 plot(f)
 ```
 
-Notice that the factorplot shows that all of the differences between non-reference categories are statistically significant.  One slight limitation to the way that `factorplot` is currently written is that it will only work on one _regressor_ in the multinomial logit.  So, it won't do `education` as a whole, but only one level.  For example: 
+Notice that the factorplot shows that all of the differences between non-reference categories are statistically significant.  As shown above, one way to specify the `factorplot` for multinomial logit objects is to give the name of a single regressor.  You can also provide the name of a term, for example `education`, which has multiple regressors in the model.  Here, there is a single heading for `Reference`.  The reference here stands in for not only the reference group of `education` in the non-reference dependent variable categories, but also for all education categories in the dependent variable reference category.  This makes sense because all of these parameters are set to 0 for identification purposes.  Here is the plot for education: 
 
 
-```{r, fig.heigh=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
-f <- factorplot(mod, variable="educationPS")
+```{r fig.height=7, fig.width=7, out.height="500px", out.width="500px", fig.align="center"}
+f <- factorplot(mod, variable="education")
 plot(f)
 ```
 
-If you wanted to do all of the levels of education, you could build the vector of coefficients and get the variance-covariance matrix as follows: 
-
-
-```{r}
-
-e <- effects::effect("education", mod)
-X <- e$model.matrix
-b <- coef(mod)
-b <- rbind(0, b)
-
-xb <- sapply(1:nrow(b), function(i)X %*% b[i,])
-exb <- exp(xb)
-probs <- prop.table(exb, 1)
-
-
-
-outer(X, coef(mod))
-b <- c(rep(0, ncol(coef(mod))), coef(mod))
-
-
-v <- vcov(mod)
-bEd <- b[,4:5]
-nb <- outer(rownames(bEd), gsub("education", "ed", colnames(bEd)), paste, sep=":")
-bEd <- c(bEd)
-names(bEd) <- c(nb)
-bEd <- c(0,0,0,0,0,0,bEd)
-names(bEd)[1:6] <- c("A:edP", "A:edPS", "A:edS", "N:edP", "U:edP", "Y:edP")
-
-v.inds <- grep("education", rownames(v))
-vEd <- v[v.inds, v.inds]
-vEd <- rbind(matrix(0, nrow=6, ncol=ncol(vEd)), vEd)
-vEd <- cbind(matrix(0, ncol=6, nrow=nrow(vEd)), vEd)
-rownames(vEd) <- colnames(vEd)  <- names(bEd)
-
-f <- factorplot:::factorplot.default(bEd, var=vEd, resdf = nrow(model.frame(mod)) - mod$rank)
-```
-
+The default method for `factorplot` will also take as the argument to `obj` a vector of estimates and a variance-covariance matrix of the estimates as the `var` argument.  Using this method, you could plot factorplots for any estimates you might want.  
 
 
 
