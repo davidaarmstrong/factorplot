@@ -166,9 +166,9 @@ factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.var
 	b.diff[cmbn] <- b %*% diffs
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
-	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- b.diff[-nrow(b.diff),-1, drop=FALSE]
 	b.diff <- -b.diff
-	b.sd <- b.sd[-nrow(b.sd),-1]
+	b.sd <- b.sd[-nrow(b.sd),-1, drop=FALSE]
 	b.t <- b.diff/b.sd
 	rns <- rownames(b.t)
 	cns <- colnames(b.t)
@@ -233,9 +233,9 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 	b.diff[cmbn] <- b %*% diffs
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
-	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- b.diff[-nrow(b.diff),-1, drop=FALSE]
 	b.diff <- -b.diff
-	b.sd <- b.sd[-nrow(b.sd),-1]
+	b.sd <- b.sd[-nrow(b.sd),-1, drop=FALSE]
 	b.t <- b.diff/b.sd
 	rns <- rownames(b.t)
 	cns <- colnames(b.t)
@@ -268,7 +268,7 @@ factorplot.summary.glht <-function(obj, ...){
 	b.diff[rc] <- -obj$test$coef
 	b.sd[rc] <- obj$test$sigma
 	b.p[rc] <- obj$test$pvalues
-	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- b.diff[-nrow(b.diff),-1, drop=FALSE]
 	b.sd <- b.sd[-nrow(b.sd), -1]
 	b.p <- b.p[-nrow(b.p), -1]
 	rns <- rownames(b.diff)
@@ -313,9 +313,9 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 	b.sd[cmbn] <- tmp.sd
 	b.p[cmbn] <- tmp.p
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- colnames(b.p) <- rownames(b.p) <- colnames(obj)
-	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- b.diff[-nrow(b.diff),-1, drop=FALSE]
 	b.diff <- -b.diff
-	b.sd <- b.sd[-nrow(b.sd),-1]
+	b.sd <- b.sd[-nrow(b.sd),-1, drop=FALSE]
 	b.p <- b.p[-nrow(b.p), -1]
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
 	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
@@ -353,9 +353,9 @@ factorplot.default <-function(obj, adjust.method="none", order="natural", var, r
 	b.diff[cmbn] <- b %*% diffs
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
-	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- b.diff[-nrow(b.diff),-1, drop=FALSE]
 	b.diff <- -b.diff
-	b.sd <- b.sd[-nrow(b.sd),-1]
+	b.sd <- b.sd[-nrow(b.sd),-1, drop=FALSE]
 
 	b.t <- b.diff/b.sd
 	rns <- rownames(b.t)
@@ -439,9 +439,9 @@ factorplot.multinom <- function(obj, adjust.method="none", order="natural", vari
 	b.diff[cmbn] <- b %*% diffs
 	b.sd[cmbn] <- sqrt(diag(t(diffs) %*% v %*% diffs))
 	colnames(b.diff) <- rownames(b.diff) <- colnames(b.sd) <- rownames(b.sd) <- names(b)
-	b.diff <- b.diff[-nrow(b.diff),-1]
+	b.diff <- b.diff[-nrow(b.diff),-1, drop=FALSE]
 	b.diff <- - b.diff
-	b.sd <- b.sd[-nrow(b.sd),-1]
+	b.sd <- b.sd[-nrow(b.sd),-1, drop=FALSE]
 	b.t <- b.diff/b.sd
 	rns <- rownames(b.t)
 	cns <- colnames(b.t)
