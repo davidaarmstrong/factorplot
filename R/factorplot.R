@@ -409,7 +409,7 @@ factorplot.multinom <- function(obj, adjust.method="none", order="natural", vari
 	b <- c(t(coef(obj)))
 	names(b) <- nb <- rownames(v)
   if(variable %in% obj$coefnames){
-  	inds <- which(gsub("^[^\\:]+\\:\\s*", "", names(b))	 == variable)
+    inds <- grep(paste0("^", variable), gsub("^[^\\:]+\\:\\s*", "", names(b)))
   	v <- v[inds,inds]
   	b <- b[inds]
   	b <- c(0,b)
