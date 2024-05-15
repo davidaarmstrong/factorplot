@@ -14,31 +14,62 @@
 \usage{
 factorplot(obj, adjust.method = "none", ...)
 
-\method{factorplot}{glm}(obj, adjust.method = "none",
-  order = "natural", factor.variable = NULL, pval = 0.05,
-  two.sided = TRUE, ...)
+\method{factorplot}{glm}(
+  obj,
+  adjust.method = "none",
+  order = "natural",
+  factor.variable = NULL,
+  pval = 0.05,
+  two.sided = TRUE,
+  ...
+)
 
-\method{factorplot}{lm}(obj, adjust.method = "none", order = "natural",
-  factor.variable = NULL, pval = 0.05, two.sided = TRUE, ...)
+\method{factorplot}{lm}(
+  obj,
+  adjust.method = "none",
+  order = "natural",
+  factor.variable = NULL,
+  pval = 0.05,
+  two.sided = TRUE,
+  ...
+)
 
 \method{factorplot}{summary.glht}(obj, ...)
 
-\method{factorplot}{glht}(obj, adjust.method = "none", pval = 0.05,
-  ...)
+\method{factorplot}{glht}(obj, adjust.method = "none", pval = 0.05, ...)
 
-\method{factorplot}{sims}(obj, adjust.method = "none",
-  order = "natural", pval = 0.05, ...)
+\method{factorplot}{sims}(obj, adjust.method = "none", order = "natural", pval = 0.05, ...)
 
-\method{factorplot}{default}(obj, adjust.method = "none",
-  order = "natural", var, resdf = Inf, pval = 0.05,
-  two.sided = TRUE, ...)
+\method{factorplot}{default}(
+  obj,
+  adjust.method = "none",
+  order = "natural",
+  var,
+  resdf = Inf,
+  pval = 0.05,
+  two.sided = TRUE,
+  ...
+)
 
-\method{factorplot}{eff}(obj, adjust.method = "none",
-  order = "natural", pval = 0.05, two.sided = TRUE, ordby = NULL,
-  ...)
+\method{factorplot}{eff}(
+  obj,
+  adjust.method = "none",
+  order = "natural",
+  pval = 0.05,
+  two.sided = TRUE,
+  ordby = NULL,
+  ...
+)
 
-\method{factorplot}{multinom}(obj, adjust.method = "none",
-  order = "natural", variable, pval = 0.05, two.sided = TRUE, ...)
+\method{factorplot}{multinom}(
+  obj,
+  adjust.method = "none",
+  order = "natural",
+  variable,
+  pval = 0.05,
+  two.sided = TRUE,
+  ...
+)
 }
 \arguments{
 \item{obj}{An object of class \code{glm} or \code{lm}, \code{glht},
