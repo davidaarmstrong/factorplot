@@ -11,7 +11,7 @@ analytical standard errors for those contrasts.
 }
 \details{
 \tabular{ll}{ Package: \tab factorplot\cr Type: \tab Package\cr Version:
-\tab 1.2.2\cr Date: \tab 2024-05-15\cr License: \tab GPL (>=2)\cr LazyLoad:
+\tab 1.2.3\cr Date: \tab 2024-05-15\cr License: \tab GPL (>=2)\cr LazyLoad:
 \tab yes\cr } After a linear model or GLM has been estimated, the factorplot
 command creates all pairwise differences among the levels (including the
 reference category) of the indicated factor as well as their associated

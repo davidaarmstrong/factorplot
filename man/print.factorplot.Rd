@@ -7,7 +7,7 @@
 \method{print}{factorplot}(x, ..., digits = 3, sig = FALSE, trans = NULL)
 }
 \arguments{
-\item{x}{An object of class \code{\link{factorplot}}.}
+\item{x}{An object of class \code{\link[factorplot]{factorplot}}.}
 
 \item{...}{Other arguments passed to print, currently not implemented}
 
@@ -22,8 +22,15 @@ estimates provided to the \code{factorplot} command are log-floating
 absolute risks, you could use the transformation \sQuote{exp}.  The
 transformation is performed through a call to \code{do.call}}
 }
+\value{
+\item{Printed output}{The printed output shows the difference between 
+all pairs of stimuli (i.e., levels of the factor) along with their standard errors 
+and (optionally adjusted) p-values.  If a transformation is implemented, the difference
+is transformed accordingly, but the standard errors and other values are on the 
+linear scale. }
+}
 \description{
-Prints the output from an object of class \code{\link{factorplot}}.  By
+Prints the output from an object of class \code{\link[factorplot]{factorplot}}.  By
 default, the function prints all pairwise differences along with standard
 errors and p-values (optionally adjusted for multiple testing). Optionally,
 it can print only significant differences.
@@ -46,7 +53,7 @@ plummer_fp1 <- factorplot(est1, var=var1, resdf=Inf)
 print(plummer_fp1, trans="exp")
 }
 \seealso{
-\code{\link{factorplot}}
+\code{\link[factorplot]{factorplot}}
 }
 \author{
 Dave Armstrong

@@ -79,17 +79,17 @@ Alternatively, an object of class \code{sims} which gives an Nsim x
 Nstimulus matrix of predictions from which differences will be calculated.}
 
 \item{adjust.method}{For objects of class \code{multinom} and \code{numeric}
-- one of the methods allowed by \code{\link{p.adjust}} in \pkg{stats} -
+- one of the methods allowed by \code{\link[stats]{p.adjust}} in \pkg{stats} -
 \sQuote{holm}, \sQuote{hochberg}, \sQuote{hommel}, \sQuote{bonferroni},
 \sQuote{BH}, \sQuote{BY}, \sQuote{fdr}, \sQuote{none}.  See help for the
-\code{\link{p.adjust}} for more information on these different adjustment
+\code{\link[stats]{p.adjust}} for more information on these different adjustment
 methods.  For objects of class \code{glm}, \code{lm} or \code{glht},
 additional arguments of \sQuote{single-step}, \sQuote{Shaffer},
-\sQuote{Westfall} and \sQuote{free} are possible.  See \code{\link{glht}}
+\sQuote{Westfall} and \sQuote{free} are possible.  See \code{\link[multcomp]{glht}}
 from the \pkg{multcomp} package for details.}
 
 \item{\dots}{Additional arguments to be passed to
-\code{\link{summary.glht}}, including, but not limited to \code{level} and
+\code{\link[multcomp]{summary.glht}}, including, but not limited to \code{level} and
 \code{alternative}.}
 
 \item{order}{One of \sQuote{natural}, \sQuote{alph}, or \sQuote{size}
@@ -134,9 +134,9 @@ the command}
 }
 \description{
 This function calculates all pairwise difference from the input data.  The
-input data can be the result of a GLM (produced with \code{\link{glm}}), a
+input data can be the result of a GLM (produced with \code{\link[stats]{glm}}), a
 multinomial logit model (produced with \code{multinom} from the \pkg{nnet}
-package), a general linear hypothesis test (produced with \code{\link{glht}}
+package), a general linear hypothesis test (produced with \code{\link[multcomp]{glht}}
 from the \pkg{multcomp} package), an object of class \code{eff} from the
 \code{effects} package or any vector of values and a corresponding
 variance-covariance matrix.

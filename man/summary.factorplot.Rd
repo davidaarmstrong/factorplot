@@ -7,13 +7,18 @@
 \method{summary}{factorplot}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{\link{factorplot}}}
+\item{object}{An object of class \code{\link[factorplot]{factorplot}}}
 
 \item{\dots}{Other arguments passed to summary, currently not implemented}
 }
+\value{
+\item{Printed Output}{The printed output summarises the number of 
+stimuli that are significantly higher or lower and not significantly different
+from each other.}
+}
 \description{
 Summarizes the number of significant positive and negative differences for
-objects of class \code{\link{factorplot}}
+objects of class \code{\link[factorplot]{factorplot}}
 }
 \examples{
 
@@ -29,7 +34,7 @@ summary(fp)
 
 }
 \seealso{
-\code{\link{factorplot}}
+\code{\link[factorplot]{factorplot}}
 }
 \author{
 Dave Armstrong

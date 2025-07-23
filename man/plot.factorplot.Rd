@@ -21,7 +21,7 @@
 }
 \arguments{
 \item{x}{An object of class factorplot, produced by
-\code{\link{factorplot}}.}
+\code{\link[factorplot]{factorplot}}.}
 
 \item{...}{Other arguments to be passed to plot, currently not implemented}
 
@@ -66,7 +66,10 @@ printed in the boxes}
 should be printed in the boxes}
 }
 \value{
-\item{a graph}{}
+\item{a graph}{For m categories, the plot returns an m-1 x m-1 matrix
+where the nexus of the row and column values represent the pairwise differencee
+between the row and column values along with the standard error of the difference
+on the linear scale (unless a transformation is performed).}
 }
 \description{
 Creates a plot akin to an upper-triangular levelplot (though using
@@ -94,7 +97,7 @@ plot(plummer_fp1, trans="exp", abbrev.char = 100)
 
 }
 \seealso{
-\code{\link{factorplot}}
+\code{\link[factorplot]{factorplot}}
 }
 \author{
 Dave Armstrong

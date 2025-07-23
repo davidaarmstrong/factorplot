@@ -20,10 +20,10 @@ returned}
 }
 \description{
 An auxiliary function to plot squares, used by the
-\code{\link{plot.factorplot}} function
+\code{\link[factorplot]{plot.factorplot}} function
 }
 \details{
-This is a function called by \code{\link{plot.factorplot}} and not intended
+This is a function called by \code{\link[factorplot]{plot.factorplot}} and not intended
 to be directly used by the user; however, it is possible that this could be
 of more general use as a utility.  The function is simply a wrapper to
 \code{polygon} that obviates the need to specify all (\code{x},\code{y})
