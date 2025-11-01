@@ -70,7 +70,8 @@
 #' between row and column levels of the factor} \item{b.sd}{An upper-triangular
 #' matrix of standard errors of the pairwise differences represented in b.diff}
 #' \item{pval}{An upper-triangular matrix of uncorrected (one-sided) p-values
-#' corresponding to the entries of b.diff} \item{p}{The p-value specified in
+#' corresponding to the entries of b.diff} \item{est}{The values of the estimates used in the calculations.}
+#' \item{p}{The p-value specified in
 #' the command}
 #' @author Dave Armstrong
 #' @references Easton, D.F., J. Peto and G.A.G. Babiker. 1991. Floating
@@ -180,7 +181,7 @@ factorplot.glm <-function(obj, adjust.method="none", order="natural", factor.var
 	colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
 	b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), obj$df.residual,lower.tail=FALSE)
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
-	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p=pval)
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, est = b, p=pval)
 	class(ret) <- c("factorplot", "list")
 	ret
 }
@@ -247,7 +248,7 @@ factorplot.lm <-function(obj, adjust.method="none", order="natural", factor.vari
 	colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
 	b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), obj$df.residual,lower.tail=FALSE)
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
-	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p=pval)
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, est=b,  p=pval)
 	class(ret) <- c("factorplot", "list")
 	ret
 }
@@ -300,6 +301,7 @@ factorplot.glht <-function(obj, adjust.method="none", pval=.05, ...){
 #' @export
 factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05,...){
 	cmbn <- t(combn(ncol(obj), 2))
+	b <- colMeans(obj)
 	diffs <- matrix(0, nrow=ncol(obj), ncol=nrow(cmbn))
 	diffs[cbind(cmbn[,1], 1:ncol(diffs))] <- -1
 	diffs[cbind(cmbn[,2], 1:ncol(diffs))] <- 1
@@ -318,7 +320,7 @@ factorplot.sims <- function(obj, adjust.method="none", order="natural", pval=.05
 	b.sd <- b.sd[-nrow(b.sd),-1, drop=FALSE]
 	b.p <- b.p[-nrow(b.p), -1]
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
-	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, est = b, p = pval)
 	class(ret) <- c("factorplot", "list")
 	ret
 }
@@ -368,7 +370,7 @@ factorplot.default <-function(obj, adjust.method="none", order="natural", var, r
 	colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
 	b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), resdf,lower.tail=FALSE)
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
-	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, p = pval)
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp, est = b, p = pval)
 	class(ret) <- c("factorplot", "list")
 	ret
 }
@@ -453,7 +455,7 @@ factorplot.multinom <- function(obj, adjust.method="none", order="natural", vari
 	colnames(b.t) <- colnames(b.diff) <- colnames(b.sd) <- cns.out
 	b.p <- (2^(as.numeric(two.sided)))*pt(abs(b.t), resdf,lower.tail=FALSE)
 	b.bp <- array(p.adjust(b.p, method=adjust.method), dim=dim(b.p))
-	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp,  p = pval)
+	ret <- list(b.diff=b.diff, b.sd=b.sd, pval = b.bp,  est = b, p = pval)
 	class(ret) <- c("factorplot", "list")
 	ret
 }
@@ -487,6 +489,99 @@ squares <- function(ll, width=1,col){
     polygon(poly.x, poly.y, col=col, border="gray85", lwd=.25)
 }
 
+#' Convert factorplot output to data frame
+#' 
+#' Converts the output from factorplot to a data frame that is convenient for custom plotting.  
+#' The plot method for factorplot objects from the factorplot package will produce a plot that is 
+#' lightly customisable.  However,  for more control over the appearance of the plot, and to plot estimates
+#' on the diagnoal of the display, returning the data and making a plot is easier.  
+#' 
+#' @param obj An object of class `factorplot` produced by the `factorplot()` function from the `factorplot` package.
+#' @param type Indicates whether you want the resulting plot to have differences on the upper triangle and p-values on the lower triangle (if `"both_tri"`) or 
+#' both p-values and differences to be plotted in the upper triangle.  
+#' @param ... Other arguments, currently ignored.
+#' @returns A data frame with columns
+#'  - `row`: The name of the parameter in the row
+#'  - `col`: The name of the parameter in the column
+#'  - `estimate`: The estimate for the parameter (on the diagonal)
+#'  - `difference`: Pairwise differences between parameters. 
+#'  - `p_value`: The p-value of the pairwise difference. 
+#'  
+#' @export
+#' @examples
+#' library(factorplot)
+#' library(ggplot2)
+#' data(chickwts)
+#' mod <- lm(weight ~ feed, data=chickwts)
+#' fp <- factorplot(mod, factor.variable = "feed", order="size")
+#' chick_df <- fp_to_df(fp, type="upper_tri")
+#' ggplot(chick_df, aes(x=row, y=column)) + 
+#'   geom_tile(aes(fill=difference), color="black") + 
+#'   geom_text(aes(label = ifelse(p_value < .05, "*", "")), color="white", size=10) + 
+#'   scale_fill_viridis_c(option = "D", na.value = "transparent") + 
+#'   theme_classic() + 
+#'   geom_text(data=chick_df, 
+#'             aes(x=row, y=column, label=round(estimate, 2))) + 
+#'   labs(fill="Difference", x="", y="")
+fp_to_df <- function(obj, type=c("upper_tri", "both_tri"), ...){
+  typ <- match.arg(type)
+  if(!"est" %in% names(obj)){
+    stop("The fp_to_matrix() function does not work for factorplot calculated on glht or summary.glht objects.\n")
+  }
+  param_names <- c(rownames(obj$b.diff), colnames(obj$b.diff)[ncol(obj$b.diff)])
+  mat <- mat_se <- matrix(NA, nrow=length(param_names), ncol = length(param_names))
+  colnames(mat) <- rownames(mat) <- colnames(mat_se) <- rownames(mat_se) <- param_names
+  if(typ == "both_tri"){
+    mat <- mat_se <- matrix(NA, nrow=length(param_names), ncol = length(param_names))
+    colnames(mat) <- rownames(mat) <- colnames(mat_se) <- rownames(mat_se) <- param_names
+    mat[lower.tri(mat)] <- t(obj$b.diff)[lower.tri(obj$b.diff, diag = TRUE)]
+    mat[upper.tri(mat)] <- obj$pval[upper.tri(obj$pval, diag=TRUE)]
+    mat_se[upper.tri(mat)] <- obj$b.sd[upper.tri(obj$b.sd, diag=TRUE)]
+    tmpl <- array(dim = dim(mat))
+    diag(tmpl) <- "estimate"
+    tmpl[lower.tri(tmpl)] <- "difference"
+    tmpl[upper.tri(tmpl)] <- "pval"
+    rownames(tmpl) <- colnames(tmpl) <- rownames(mat)
+    diag(mat) <- obj$est
+    mat <- mat[, ncol(mat):1]
+    mat_se <- mat_se[, ncol(mat_se):1]
+    tmpl <- tmpl[,ncol(tmpl):1]
+    out <- as.data.frame(as.table(mat))
+    out_se <- as.data.frame(as.table(mat_se))
+    tmpl <- as.data.frame(as.table(tmpl))
+    names(out) <- c("row", "column", "value")
+    names(out_se) <- c("row", "column", "se")
+    names(tmpl) <- c("row", "column", "type")
+    out <- merge(out, tmpl)
+    out <- merge(out, out_se)
+    out$p_value <- ifelse(out$type == "pval", out$value, NA)
+    out$difference <- ifelse(out$type == "difference", out$value, NA)
+    out$estimate <- ifelse(out$type == "estimate", out$value, NA)
+  }else{
+    est_mat <- diff_mat <- pv_mat <- se_mat <- mat
+    pv_mat[lower.tri(pv_mat)] <- t(obj$pval)[lower.tri(obj$pval, diag=TRUE)]
+    se_mat[lower.tri(se_mat)] <- t(obj$b.sd)[lower.tri(obj$b.sd, diag=TRUE)]
+    diff_mat[lower.tri(diff_mat)] <- t(obj$b.diff)[lower.tri(obj$b.diff, diag=TRUE)]
+    diag(est_mat) <- obj$est
+    pv_mat <- pv_mat[, ncol(pv_mat):1]
+    se_mat <- se_mat[, ncol(se_mat):1]
+    diff_mat <- diff_mat[, ncol(pv_mat):1]
+    est_mat <- est_mat[, ncol(pv_mat):1]
+    est_dat <- as.data.frame(as.table(est_mat))
+    diff_dat <- as.data.frame(as.table(diff_mat))
+    pv_dat <- as.data.frame(as.table(pv_mat))
+    se_dat <- as.data.frame(as.table(se_mat))
+    names(est_dat) <- c("row", "column", "estimate")
+    names(diff_dat) <- c("row", "column", "difference")
+    names(pv_dat) <- c("row", "column", "p_value")
+    names(se_dat) <- c("row", "column", "se")
+    out <- merge(diff_dat, pv_dat)
+    out <- merge(out, est_dat)
+    out <- merge(out, se_dat)
+    out <- out[-which(rowSums(is.na(out)) == 4), ]
+  }
+  out
+}
 
 
 #' Plot method for objects of class factorplot
@@ -502,41 +597,24 @@ squares <- function(ll, width=1,col){
 #' @param abbrev.char The number of characters that should be used to
 #' abbreviate the levels of the factor.  Set to a large value for unabbreviated
 #' names.
-#' @param polycol A vector of three colors indicating the colors of polygons
-#' when the difference is significant negative, insignificant, and significant
-#' positive, in that order.  Defaults to c(\sQuote{gray80}, \sQuote{white},
-#' \sQuote{gray40}).
-#' @param textcol A vector of three colors indicating the text color for
-#' polygons that are significant negative, insignificant, and significant
-#' positive, in that order.  Defaults to c(\sQuote{black}, \sQuote{black},
-#' \sQuote{white})
-#' @param trans A character string representing the post-hypothesis-testing
-#' transformation to be performed on the estimates.  For example, if the
-#' estimates provided to the \code{factorplot} command are log-floating
-#' absolute risks, you could use the transformation \sQuote{exp}.  The
-#' transformation is performed through a call to \code{do.call}
-#' @param print.sig.leg logical indicating whether the legend identifying the
-#' meaning of the different colors should be included.
-#' @param print.square.leg logical indicating whether the legend identifying
-#' the meaning of the numbers in each square should be included.
-#' @param scale.text optional scale factor to be applied to text, numbers
-#' bigger than 1 make text bigger than default and numbers smaller than 1 do
-#' the opposite
-#' @param space.text optional text spacing factor, numbers bigger than 1 push
-#' text toward the extent of the boxes and numbers smaller than one bring text
-#' in toward the center
 #' @param print.est logical argument indicating whether the estimates should be
 #' printed in the boxes
 #' @param print.se logical argument indicating whether the standard errors
 #' should be printed in the boxes
+#' @param text.nudge Scalar giving the value the estimate text will be moved in the positive direction on y and the 
+#' standard error text will be moved in the negative direction on y.
+#' @param text.args A list of other arguments to be passed to `geom_text()`, such as `size` or `color`.
+#' @param remove.caption Logical indicating whether the caption should be removed from the plot.
 #' @param ... Other arguments to be passed to plot, currently not implemented
 #' @return \item{a graph}{For m categories, the plot returns an m-1 x m-1 matrix
-#' where the nexus of the row and column values represent the pairwise differencee
+#' where the nexus of the row and column values represent the pairwise differences
 #' between the row and column values along with the standard error of the difference
 #' on the linear scale (unless a transformation is performed).}
 #' @export
 #' @author Dave Armstrong
 #' @seealso \code{\link[factorplot]{factorplot}}
+#' @importFrom ggplot2 ggplot aes geom_tile scale_fill_manual geom_text position_nudge theme_bw theme element_line element_text labs unit
+#' @importFrom ggtext element_textbox_simple
 #' @examples
 #' 
 #' est1 <- log(c(1.00,2.12,1.44,1.31,1.44,
@@ -557,77 +635,73 @@ squares <- function(ll, width=1,col){
 #' 
 #' @method plot factorplot
 #' @export
-plot.factorplot <- function(x, ..., abbrev.char=10, polycol=NULL, textcol = NULL, trans=NULL, 
-	print.sig.leg=TRUE, print.square.leg=TRUE, scale.text=1, space.text=1, print.est=TRUE, 
-	print.se=TRUE){
-r.bdiff <- x$b.diff[rev(1:nrow(x$b.diff)), ]
-r.bsd <- x$b.sd[rev(1:nrow(x$b.sd)), ]
-use.pval <- x$pval
-cns.out <- abbreviate(colnames(x$b.diff), abbrev.char)
-rns.out <- abbreviate(rownames(x$b.diff), abbrev.char)
-
-ymarg <- max(strwidth(rns.out, units="inches"))
-tmarg <- max(strwidth(cns.out, units="inches"))
-oldpar <- par(no.readonly = TRUE) 
-on.exit(par(oldpar)) 
-par(mai=c(0,ymarg,tmarg,0), oma=c(0,0,1,0))
-plot(c(1,nrow(x$b.diff)+1), 
-    c(1, nrow(x$b.diff)+1), type="n", main="", xlab="", ylab="", axes=FALSE)
-axis(3, at=seq(from=1.5, to=nrow(x$b.diff)+.5, by=1), labels=gsub("_", " ", cns.out, fixed=T), 
-    tick=FALSE, lwd=0, line=-1, las=2)
-axis(2, at=seq(from=1.5, to=nrow(x$b.diff)+.5, by=1), labels=rev(gsub("_", " ", rns.out, fixed=T)), 
-    tick=FALSE, lwd=0, line=-1, las=1)
-rseq <- rev(1:nrow(x$b.diff))
-
-if(is.null(polycol)){
-	colvec <- c("gray80", "white", "gray40")
-} else{
-	colvec <- polycol
-}
-if(is.null(textcol)){
-	text.col <- c("black", "black", "white")
-} else{
-	text.col <- textcol
-}
-if(!is.null(trans)){
-	r.bdiff <- do.call(trans, list(r.bdiff))
-}
-m <- 1
-for(i in rseq){ 
-    for(j in m:nrow(x$b.diff)){
-
-        if(use.pval[m,j] < ifelse("p" %in% names(x), x$p, .05) & x$b.diff[m,j] < 0){
-            col.ind <- 1
-            }
-            else if(use.pval[m,j] < ifelse("p" %in% names(x), x$p, .05) & x$b.diff[m,j] > 0){
-                col.ind <- 3
-                }
-                else{
-                col.ind <- 2
-                }
- 	squares(c(j, i), col = colvec[col.ind])
-	if(print.est){
-    text(j+.5, i+.5+((.05*log(nrow(x$b.diff)))*space.text), sprintf("%.2f", r.bdiff[i,j]), font=2, 
-        cex=(1-(.0275*(nrow(x$b.diff)-2)))*scale.text, col=text.col[col.ind])
-	}
-	if(print.se){
-    text(j+.5, i+.5-((.05*log(nrow(x$b.diff)))*space.text), sprintf("%.2f", r.bsd[i,j]), font=3, 
-       cex=(1-(.0275*(nrow(x$b.diff)-2)))*scale.text, col=text.col[col.ind])
-	}
+plot.factorplot <- function(x, 
+                            ..., 
+                            abbrev.char=100, 
+                            print.est = TRUE, 
+                            print.se = TRUE, 
+                            text.nudge = .1, 
+                            text.args = list(), 
+                            remove.caption = FALSE
+                            ){
+  d <- fp_to_df(x, type = "upper_tri")
+  d$Significance <- NA
+  sn_inds <- which(d$difference < 0 & d$p_value < .05)
+  ns_inds <- which(d$p_value > .05)
+  sp_inds <- which(d$difference > 0 & d$p_value < .05)
+  if(length(sn_inds) > 0)d$Significance[sn_inds] <- "Significant Negative"
+  if(length(sp_inds) > 0)d$Significance[sp_inds] <- "Significant Positive"
+  if(length(ns_inds) > 0)d$Significance[ns_inds] <- "Not Significant"
+  d$Significance  <- factor(d$Significance, 
+                            levels = c("Significant Negative", "Not Significant", "Significant Positive"))
+  levels(d$row) <- abbreviate(levels(d$row), abbrev.char)
+  levels(d$column) <- abbreviate(levels(d$column), abbrev.char)
+  g <- ggplot(mapping = aes(x=row, y=column, fill=Significance)) + 
+    geom_tile(data = subset(d, !is.na(Significance)), 
+              color="black", linewidth=.05) + 
+    scale_fill_manual(values=c("Significant Negative" = "gray80", 
+                                "Not Significant" = "white", 
+                                "Significant Positive" = "gray30"), 
+                       na.value="transparent") 
+    if(print.est){
+      est_text_args <- text.args
+      est_text_args$fontface = "bold"
+      est_text_args$position = position_nudge(y=text.nudge)
+      est_text_args$data = subset(d, !is.na(difference))
+      est_text_args$mapping = aes(label = sprintf("%.2f", difference))
+      g <- g + do.call(geom_text, est_text_args)
     }
-m <- m+1
-}
-leg <- legend(1,1, c("Significantly < 0", "Not Significant", "Significantly > 0"), fill=colvec, 
-    bty="n", xjust=0, yjust=0, cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.sig.leg)
-legend(1+leg$rect$w*as.numeric(print.sig.leg), 1, c(expression(bold("bold = ")~b[row]-b[col]), 
-	expression(italic("ital = ")~SE(b[row]-b[col]))), xjust=0, yjust=0, bty="n",
-	cex=ifelse(nrow(x$b.diff) == 2, .75, 1), plot=print.square.leg)
-}
-
-
-
-
-
+    if(print.se){
+      se_text_args <- text.args
+      se_text_args$fontface = "italic"
+      se_text_args$position = position_nudge(y=-text.nudge)
+      se_text_args$data = subset(d, !is.na(se))
+      se_text_args$mapping = aes(label = sprintf("(%.2f)", se))
+      g <- g + do.call(geom_text, se_text_args)
+    }
+  if(print.est & print.se){
+    cap <- "Bold entries are row estimate minus column estimate, italic entries are the standard errors of the differences"
+  }
+  if(print.est & !print.se){
+    cap <- "Text entries are row estimate minus column estimate"
+  }
+  if(!print.est & print.se){
+    cap <- "Text entries are the standard errors of the differences"
+  }
+  if((!print.est & !print.se) | remove.caption){
+    cap <- ""
+  }
+  g <- g + 
+    labs(x="", y="", fill="Significance", 
+         caption = cap) + 
+    theme_bw() + 
+    theme(panel.grid = element_line(linewidth=.2), 
+        axis.text.x = element_text(angle=45, hjust=1), 
+        legend.position="top", 
+        plot.caption = element_textbox_simple(width = unit(1, "npc"),  # Wraps to plot width
+                                              halign = 0)) 
+  g
+  }
 
 #' Print method for objects of class factorplot
 #' 

@@ -1,4 +1,4 @@
-
+globalVariables(c("column", "Significance", "difference", "se"))
 
 #' factorplot
 #' 

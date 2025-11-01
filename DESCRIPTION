@@ -1,9 +1,9 @@
 Package: factorplot
 Type: Package
 Title: Presenting Pairwise Comparisons
-Version: 1.2.4
+Version: 1.3
 Authors@R: person("Dave", "Armstrong", role = c("aut", "cre"), email = "davearmstrong.ps@gmail.com")
-Depends: multcomp
+Depends: ggplot2, ggtext, multcomp
 Suggests: nnet, carData
 Description: The tools herein calculate, print, summarize and plot pairwise differences that result from generalized linear models, general linear hypothesis tests and multinomial logistic regression models. For more information, see Armstrong (2013) <doi:10.32614/RJ-2013-021>.
 License: GPL (>=2)

@@ -7,16 +7,12 @@
 \method{plot}{factorplot}(
   x,
   ...,
-  abbrev.char = 10,
-  polycol = NULL,
-  textcol = NULL,
-  trans = NULL,
-  print.sig.leg = TRUE,
-  print.square.leg = TRUE,
-  scale.text = 1,
-  space.text = 1,
+  abbrev.char = 100,
   print.est = TRUE,
-  print.se = TRUE
+  print.se = TRUE,
+  text.nudge = 0.1,
+  text.args = list(),
+  remove.caption = FALSE
 )
 }
 \arguments{
@@ -29,45 +25,22 @@
 abbreviate the levels of the factor.  Set to a large value for unabbreviated
 names.}
 
-\item{polycol}{A vector of three colors indicating the colors of polygons
-when the difference is significant negative, insignificant, and significant
-positive, in that order.  Defaults to c(\sQuote{gray80}, \sQuote{white},
-\sQuote{gray40}).}
-
-\item{textcol}{A vector of three colors indicating the text color for
-polygons that are significant negative, insignificant, and significant
-positive, in that order.  Defaults to c(\sQuote{black}, \sQuote{black},
-\sQuote{white})}
-
-\item{trans}{A character string representing the post-hypothesis-testing
-transformation to be performed on the estimates.  For example, if the
-estimates provided to the \code{factorplot} command are log-floating
-absolute risks, you could use the transformation \sQuote{exp}.  The
-transformation is performed through a call to \code{do.call}}
-
-\item{print.sig.leg}{logical indicating whether the legend identifying the
-meaning of the different colors should be included.}
-
-\item{print.square.leg}{logical indicating whether the legend identifying
-the meaning of the numbers in each square should be included.}
-
-\item{scale.text}{optional scale factor to be applied to text, numbers
-bigger than 1 make text bigger than default and numbers smaller than 1 do
-the opposite}
-
-\item{space.text}{optional text spacing factor, numbers bigger than 1 push
-text toward the extent of the boxes and numbers smaller than one bring text
-in toward the center}
-
 \item{print.est}{logical argument indicating whether the estimates should be
 printed in the boxes}
 
 \item{print.se}{logical argument indicating whether the standard errors
 should be printed in the boxes}
+
+\item{text.nudge}{Scalar giving the value the estimate text will be moved in the positive direction on y and the 
+standard error text will be moved in the negative direction on y.}
+
+\item{text.args}{A list of other arguments to be passed to `geom_text()`, such as `size` or `color`.}
+
+\item{remove.caption}{Logical indicating whether the caption should be removed from the plot.}
 }
 \value{
 \item{a graph}{For m categories, the plot returns an m-1 x m-1 matrix
-where the nexus of the row and column values represent the pairwise differencee
+where the nexus of the row and column values represent the pairwise differences
 between the row and column values along with the standard error of the difference
 on the linear scale (unless a transformation is performed).}
 }

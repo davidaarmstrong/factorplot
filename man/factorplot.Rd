@@ -129,7 +129,8 @@ object is passed to the function}
 between row and column levels of the factor} \item{b.sd}{An upper-triangular
 matrix of standard errors of the pairwise differences represented in b.diff}
 \item{pval}{An upper-triangular matrix of uncorrected (one-sided) p-values
-corresponding to the entries of b.diff} \item{p}{The p-value specified in
+corresponding to the entries of b.diff} \item{est}{The values of the estimates used in the calculations.}
+\item{p}{The p-value specified in
 the command}
 }
 \description{
